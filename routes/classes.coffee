@@ -1,12 +1,12 @@
 _ = require 'underscore'
 express = require 'express'
-messages = require '../SQL/messages'
+messages = require '../ORM_Refactor/messages'
 
 router = express.Router()
 
 router.all '/*', (req, res, next) ->
   res.set defaultCorsHeaders
-  do next
+  messages.sync (err) -> next err
 
 router.route '/:roomname'
   .get (req, res, next) ->

@@ -30,7 +30,7 @@
 
   messages.get = function(roomname, callback) {
     var queryString;
-    queryString = "SELECT username, roomname, text FROM messages " + (roomname != null ? "WHERE roomname = '" + roomname + "'" : "") + " ORDER BY createdAt DESC LIMIT 10;";
+    queryString = "SELECT username, roomname, text FROM messages " + (roomname != null ? "WHERE roomname = '" + roomname + "'" : "") + " ORDER BY createdAt DESC LIMIT 100;";
     return dbConnection.query(queryString, callback);
   };
 

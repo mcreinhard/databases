@@ -6,13 +6,15 @@
 
   express = require('express');
 
-  messages = require('../SQL/messages');
+  messages = require('../ORM_Refactor/messages');
 
   router = express.Router();
 
   router.all('/*', function(req, res, next) {
     res.set(defaultCorsHeaders);
-    return next();
+    return messages.sync(function(err) {
+      return next(err);
+    });
   });
 
   router.route('/:roomname').get(function(req, res, next) {
