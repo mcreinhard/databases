@@ -15,28 +15,35 @@
     return next();
   });
 
-  router.route('/messages').get(function(req, res, next) {
-    return messages.get(null, function(results) {
-      return res.status(200).json({
-        results: results
-      });
-    });
-  }).post(function(req, res, next) {
-    messages.add(req.body);
-    return res.send(201);
-  });
-
   router.route('/:roomname').get(function(req, res, next) {
-    return messages.get(req.param('roomname'), function(results) {
-      return res.status(200).json({
-        results: results
-      });
+    var roomname;
+    if ((req.param('roomname')) !== 'messages') {
+      roomname = req.param('roomname');
+    }
+    return messages.get(roomname, function(err, results) {
+      if (err) {
+        return next(err);
+      } else {
+        return res.json(200, {
+          results: results
+        });
+      }
     });
   }).post(function(req, res, next) {
-    messages.add(_(req.body).extend({
-      roomname: req.param('roomname')
-    }));
-    return res.send(201);
+    var message;
+    message = req.body;
+    if ((req.param('roomname')) !== 'messages') {
+      _(message).extend({
+        roomname: req.param('roomname')
+      });
+    }
+    return messages.add(message, function(err) {
+      if (err) {
+        return next(err);
+      } else {
+        return res.send(201);
+      }
+    });
   });
 
   module.exports = router;

@@ -8,24 +8,20 @@ router.all '/*', (req, res, next) ->
   res.set defaultCorsHeaders
   do next
 
-router.route '/messages'
-  .get (req, res, next) ->
-  # TODO: Error handling
-    messages.get null, (results) ->
-      res.status 200
-        .json results: results
-  .post (req, res, next) ->
-    messages.add req.body
-    res.send 201
-
 router.route '/:roomname'
   .get (req, res, next) ->
-    messages.get (req.param 'roomname'), (results) ->
-      res.status 200
-        .json results: results
+    unless (req.param 'roomname') is 'messages'
+      roomname = req.param 'roomname'
+    messages.get roomname, (err, results) ->
+      if err then next err
+      else res.json 200, results: results
   .post (req, res, next) ->
-    messages.add _(req.body).extend roomname: req.param 'roomname'
-    res.send 201
+    message = req.body
+    unless (req.param 'roomname') is 'messages'
+      _(message).extend roomname: req.param 'roomname'
+    messages.add message, (err) ->
+      if err then next err
+      else res.send 201
 
 module.exports = router
 
