@@ -2,12 +2,11 @@ CREATE DATABASE chat;
 
 USE chat;
 
-CREATE TABLE messages (
- /* Describe your table here.*/
+CREATE TABLE `messages` (
+  `messageID` INT(10) NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(20),
+  `roomname` VARCHAR(30),
+  `text` VARCHAR(200),
+  `createdAt` VARCHAR(30),
+  PRIMARY KEY  (`messageID`)
 );
-
-/* You can also create more tables, if you need them... */
-
-/*  Execute this file from the command line by typing:
- *    mysql < schema.sql
- *  to create the database and the tables.*/
