@@ -12,7 +12,7 @@
 
   dbConnection.connect();
 
-  messages = {};
+  messages = module.exports;
 
   messages.add = function(message, callback) {
     var key, queryString, _i, _len, _ref;
@@ -24,17 +24,15 @@
       }
     }
     message.createdAt = (new Date()).toJSON();
-    queryString = "INSERT INTO messages (username, roomname, text, createdAt) values ('" + message.username + "', '" + message.roomname + "', '" + message.text + "', '" + message.createdAt + "');";
+    queryString = "INSERT INTO messages (username, roomname, text, createdAt) VALUES ('" + message.username + "', '" + message.roomname + "', '" + message.text + "', '" + message.createdAt + "');";
     return dbConnection.query(queryString, callback);
   };
 
   messages.get = function(roomname, callback) {
     var queryString;
-    queryString = "SELECT username, roomname, text FROM messages " + (roomname != null ? "WHERE roomname = '" + roomname + "'" : "") + " ORDER BY createdAt DESC;";
+    queryString = "SELECT username, roomname, text FROM messages " + (roomname != null ? "WHERE roomname = '" + roomname + "'" : "") + " ORDER BY createdAt DESC LIMIT 10;";
     return dbConnection.query(queryString, callback);
   };
-
-  module.exports = messages;
 
 }).call(this);
 

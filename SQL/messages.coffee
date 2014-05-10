@@ -7,7 +7,7 @@ dbConnection = mysql.createConnection
 
 do dbConnection.connect
 
-messages = {}
+messages = module.exports
 
 # Callback takes parameter (err)
 messages.add = (message, callback) ->
@@ -15,7 +15,7 @@ messages.add = (message, callback) ->
   message.createdAt = do (new Date()).toJSON
 
   queryString = "INSERT INTO messages (username, roomname, text, createdAt)
-                 values ('#{message.username}', '#{message.roomname}',
+                 VALUES ('#{message.username}', '#{message.roomname}',
                  '#{message.text}', '#{message.createdAt}');"
 
   dbConnection.query queryString, callback
@@ -26,8 +26,6 @@ messages.get = (roomname, callback) ->
 
   queryString = "SELECT username, roomname, text FROM messages
                  #{if roomname? then ("WHERE roomname = '" + roomname + "'") else ""}
-                 ORDER BY createdAt DESC;"
+                 ORDER BY createdAt DESC LIMIT 100;"
 
   dbConnection.query queryString, callback
-
-module.exports = messages
