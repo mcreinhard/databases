@@ -12,9 +12,7 @@
 
   router.all('/*', function(req, res, next) {
     res.set(defaultCorsHeaders);
-    return messages.sync(function(err) {
-      return next(err);
-    });
+    return next();
   });
 
   router.route('/:roomname').get(function(req, res, next) {

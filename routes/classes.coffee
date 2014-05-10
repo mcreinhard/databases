@@ -6,7 +6,7 @@ router = express.Router()
 
 router.all '/*', (req, res, next) ->
   res.set defaultCorsHeaders
-  messages.sync (err) -> next err
+  do next
 
 router.route '/:roomname'
   .get (req, res, next) ->
