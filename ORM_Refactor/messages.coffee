@@ -1,3 +1,4 @@
+Promise = require 'bluebird'
 Sequelize = require 'sequelize'
 sequelize = new Sequelize 'chat', 'root', 'batterchalks'
 
@@ -13,9 +14,7 @@ Message = sequelize.define 'Message',
 Message.belongsTo User
 Message.belongsTo Room
 
-(do User.sync)
-.then -> do Room.sync
-.then -> do Message.sync
+Promise.all (do Model.sync for Model in [User, Room, Message])
 .catch (err) -> throw err
 
 messages = module.exports
@@ -30,7 +29,6 @@ messages.add = (message) ->
     message.RoomId = room.dataValues.id
     newMessage = Message.build message
     do newMessage.save
-
 
 messages.get = (roomname) ->
   options =
