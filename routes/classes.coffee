@@ -9,19 +9,19 @@ router.all '/*', (req, res, next) ->
   do next
 
 router.route '/:roomname'
-  .get (req, res, next) ->
-    unless (req.param 'roomname') is 'messages'
-      roomname = req.param 'roomname'
-    messages.get roomname, (err, results) ->
-      if err then next err
-      else res.json 200, results: results
-  .post (req, res, next) ->
-    message = req.body
-    unless (req.param 'roomname') is 'messages'
-      _(message).extend roomname: req.param 'roomname'
-    messages.add message, (err) ->
-      if err then next err
-      else res.send 201
+.get (req, res, next) ->
+  unless (req.param 'roomname') is 'messages'
+    roomname = req.param 'roomname'
+  messages.get roomname
+  .then (results) -> res.json 200, results: results
+  .catch (err) -> next err
+.post (req, res, next) ->
+  message = req.body
+  unless (req.param 'roomname') is 'messages'
+    _(message).extend roomname: req.param 'roomname'
+  messages.add message
+  .then -> res.send 201
+  .catch (err) -> next err
 
 module.exports = router
 
@@ -30,4 +30,3 @@ defaultCorsHeaders =
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS"
   "access-control-allow-headers": "content-type, accept"
   "access-control-max-age": 10 # Seconds.
-

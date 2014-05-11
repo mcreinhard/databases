@@ -10,30 +10,29 @@ Room = sequelize.define 'Room',
 Message = sequelize.define 'Message',
   text: Sequelize.STRING
 
-User.hasMany Message
-Room.hasMany Message
 Message.belongsTo User
 Message.belongsTo Room
 
-User.sync().done (err) -> throw err if err
-Room.sync().done (err) -> throw err if err
-Message.sync().done (err) -> throw err if err
+(do User.sync)
+.then -> do Room.sync
+.then -> do Message.sync
+.catch (err) -> throw err
 
 messages = module.exports
 
-messages.add = (message, callback) ->
+messages.add = (message) ->
   (message[key] ?= '') for key in ['username', 'roomname', 'text']
   User.findOrCreate username: message.username
-    .done (err, user) ->
-      Room.findOrCreate roomname: message.roomname
-        .done (err, room) ->
-          newMessage = Message.build
-            UserId: user.dataValues.id
-            RoomId: room.dataValues.id
-            text: message.text
-          newMessage.save().done callback
+  .then (user) ->
+    message.UserId = user.dataValues.id
+    Room.findOrCreate roomname: message.roomname
+  .then (room) ->
+    message.RoomId = room.dataValues.id
+    newMessage = Message.build message
+    do newMessage.save
 
-messages.get = (roomname, callback) ->
+
+messages.get = (roomname) ->
   options =
     attributes: ['User.username', 'Room.roomname', 'text', 'createdAt']
     include: [User, Room]
@@ -41,5 +40,3 @@ messages.get = (roomname, callback) ->
     limit: 100
   if roomname? then options.where = 'Room.roomname': roomname
   Message.findAll options
-    .done callback
-  

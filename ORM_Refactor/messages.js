@@ -18,35 +18,21 @@
     text: Sequelize.STRING
   });
 
-  User.hasMany(Message);
-
-  Room.hasMany(Message);
-
   Message.belongsTo(User);
 
   Message.belongsTo(Room);
 
-  User.sync().done(function(err) {
-    if (err) {
-      throw err;
-    }
-  });
-
-  Room.sync().done(function(err) {
-    if (err) {
-      throw err;
-    }
-  });
-
-  Message.sync().done(function(err) {
-    if (err) {
-      throw err;
-    }
+  (User.sync()).then(function() {
+    return Room.sync();
+  }).then(function() {
+    return Message.sync();
+  })["catch"](function(err) {
+    throw err;
   });
 
   messages = module.exports;
 
-  messages.add = function(message, callback) {
+  messages.add = function(message) {
     var key, _i, _len, _ref;
     _ref = ['username', 'roomname', 'text'];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -57,22 +43,20 @@
     }
     return User.findOrCreate({
       username: message.username
-    }).done(function(err, user) {
+    }).then(function(user) {
+      message.UserId = user.dataValues.id;
       return Room.findOrCreate({
         roomname: message.roomname
-      }).done(function(err, room) {
-        var newMessage;
-        newMessage = Message.build({
-          UserId: user.dataValues.id,
-          RoomId: room.dataValues.id,
-          text: message.text
-        });
-        return newMessage.save().done(callback);
       });
+    }).then(function(room) {
+      var newMessage;
+      message.RoomId = room.dataValues.id;
+      newMessage = Message.build(message);
+      return newMessage.save();
     });
   };
 
-  messages.get = function(roomname, callback) {
+  messages.get = function(roomname) {
     var options;
     options = {
       attributes: ['User.username', 'Room.roomname', 'text', 'createdAt'],
@@ -85,7 +69,7 @@
         'Room.roomname': roomname
       };
     }
-    return Message.findAll(options).done(callback);
+    return Message.findAll(options);
   };
 
 }).call(this);

@@ -20,14 +20,12 @@
     if ((req.param('roomname')) !== 'messages') {
       roomname = req.param('roomname');
     }
-    return messages.get(roomname, function(err, results) {
-      if (err) {
-        return next(err);
-      } else {
-        return res.json(200, {
-          results: results
-        });
-      }
+    return messages.get(roomname).then(function(results) {
+      return res.json(200, {
+        results: results
+      });
+    })["catch"](function(err) {
+      return next(err);
     });
   }).post(function(req, res, next) {
     var message;
@@ -37,12 +35,10 @@
         roomname: req.param('roomname')
       });
     }
-    return messages.add(message, function(err) {
-      if (err) {
-        return next(err);
-      } else {
-        return res.send(201);
-      }
+    return messages.add(message).then(function() {
+      return res.send(201);
+    })["catch"](function(err) {
+      return next(err);
     });
   });
 
